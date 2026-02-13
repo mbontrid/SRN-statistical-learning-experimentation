@@ -2,6 +2,10 @@
 
 Experimentation (playground) of simple recursive network in the domain of human statistical learning.
 
+## Articles
+
+- [Chunking or not chunking? How do we find words in artificial language learning?](https://psycnet.apa.org/record/2013-13580-007)
+
 ## Installation
 
 This project use the [UV](https://github.com/astral-sh/uv) package manager.
