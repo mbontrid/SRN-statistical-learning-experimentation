@@ -1,6 +1,6 @@
 import argparse
 
-from models.elman_SRN import Elman_SRN
+from src.models.Elman_SRN import Elman_SRN
 
 argument_parser = argparse.ArgumentParser(
     description="Experiment with simple recursive network for statistical learning in human."
