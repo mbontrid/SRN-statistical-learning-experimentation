@@ -1,6 +1,21 @@
 import numpy as np
 
 
+class SRN:
+    def __init__(self, dimension: list[int] = [8, 8, 8]):
+        self.dim = dimension
+        self.input_size = dimension[0]
+
+    def forward(self, data: list):
+        pass
+
+    def predict(self, data: list):
+        pass
+
+    def __str__(self):
+        return "TODO"
+
+
 class generic_network:
     def __init__(self, dimension: list[int] = [8, 8, 5, 8, 8]):
         input_size = dimension[0]
