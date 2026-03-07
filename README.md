@@ -26,3 +26,11 @@ uv run src/main.py
 ### Model list
 
 - [ ] [Elman SRN](https://web.stanford.edu/group/pdplab/pdphandbook/handbookch8.html)
+
+## data
+
+Input data are meant to be in the data directory.
+
+## Interface
+
+For the moment, the is no interface. The only way to use this software is through the command line.
