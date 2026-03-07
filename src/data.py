@@ -1,32 +1,49 @@
-import pandas as pd
+from enum import Enum, auto
 from pathlib import Path
 
+import pandas as pd
 
-class data_formater:
+
+class Format(Enum):
+    default = auto()
+    format_1 = auto()  # format of the Results_TR_24.xls file
+
+
+def results_tr_24_loader(file_path: Path) -> pd.DataFrame:
+    return pd.read_excel(file_path, sheet_name="data", skiprows=1)
+
+
+format_function_dic = {Format.format_1: results_tr_24_loader}
+
+
+class RawData:
     """Arbitrary formated data loader.
+    As input format in completely arbitrary, the format has to be explicitly specified.
 
     Attributes:
         data: data formated for the project. Extracted from a arbitrary formated file.
     """
 
-    def __init__(self, file_path: Path):
+    def __init__(self):
+        self.path: Path
+        self.data: pd.DataFrame
 
-        file_extension = file_path.suffix
+    def load(
+        self,
+        file_path: Path = Path("./data/Results_TR_24.xls"),
+        format: Format = Format.default,
+    ) -> pd.DataFrame:
 
-        self.data = None
+        if not file_path.exists():
+            # raise FileNotFoundError(f"File {file_path} not found.")
+            print("zut 2")
 
-        if file_extension == "xls":
-            self.data = self.load_xls(file_path)
+        self.path = file_path
 
-    @staticmethod
-    def load_xls(file_path: Path):
-        pass
+        loader_function = format_function_dic.get(format)
+        if loader_function is None:
+            raise ValueError(f"No loader function defined for format: {format}")
 
+        self.data = loader_function(file_path)
 
-class data_sequence:
-    def __init__(self, file_path: Path):
-        self.file_path = file_path
-
-    def read_excel(self, file_path):
-        df = pd.read_excel(file_path)
-        print(df)
+        return self.data
