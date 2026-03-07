@@ -1,6 +1,5 @@
 from enum import Enum, auto
 from pathlib import Path
-
 import pandas as pd
 
 
@@ -16,7 +15,7 @@ def results_tr_24_loader(file_path: Path) -> pd.DataFrame:
 format_function_dic = {Format.format_1: results_tr_24_loader}
 
 
-class RawData:
+class DataLoader:
     """Arbitrary formated data loader.
     As input format in completely arbitrary, the format has to be explicitly specified.
 
@@ -30,13 +29,12 @@ class RawData:
 
     def load(
         self,
-        file_path: Path = Path("./data/Results_TR_24.xls"),
-        format: Format = Format.default,
+        file_path: Path,
+        format: Format,
     ) -> pd.DataFrame:
 
         if not file_path.exists():
-            # raise FileNotFoundError(f"File {file_path} not found.")
-            print("zut 2")
+            raise FileNotFoundError(f"File {file_path} not found.")
 
         self.path = file_path
 

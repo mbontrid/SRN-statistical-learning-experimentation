@@ -1,32 +1,13 @@
-import argparse
-from data import Format, RawData
-from pathlib import Path
-
-parser = argparse.ArgumentParser(
-    description="Experimentation (playground) of simple recursive network in the domain of human statistical learning."
-)
-
-parser.add_argument(
-    "--input",
-    "-i",
-    type=Path,
-    default=Path("./data/Results_TR_24.xls"),
-    help="Path to the file to be loaded.",
-)
-parser.add_argument(
-    "--format",
-    "-f",
-    type=Format,
-    default=Format.format_1,
-    help="Format of the given file. This specify the file extension and the arbitrary formating.",
-)
-
-args = parser.parse_args()
+from data import DataLoader
+from args import Args
 
 
 def main():
-    data = RawData()
-    data.load(args.input, args.format)
+    args = Args()  # parse the terminal arguments
+
+    data = DataLoader()
+    data.load(args.file_path, args.format)
+
     print(data.data)
 
 
