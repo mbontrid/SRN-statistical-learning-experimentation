@@ -527,22 +527,30 @@ name = "srn-statistical-learning-experimentation"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
-    { name = "debugpy" },
     { name = "numpy" },
     { name = "pandas" },
-    { name = "pytest" },
     { name = "torch" },
     { name = "xlrd" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "debugpy" },
+    { name = "pytest" },
+]
+
 [package.metadata]
 requires-dist = [
-    { name = "debugpy", specifier = ">=1.8.20" },
     { name = "numpy", specifier = ">=2.4.2" },
     { name = "pandas", specifier = ">=3.0.1" },
-    { name = "pytest", specifier = ">=9.0.2" },
     { name = "torch", specifier = ">=2.10.0" },
     { name = "xlrd", specifier = ">=2.0.2" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "debugpy", specifier = ">=1.8.20" },
+    { name = "pytest", specifier = ">=9.0.2" },
 ]
 
 [[package]]

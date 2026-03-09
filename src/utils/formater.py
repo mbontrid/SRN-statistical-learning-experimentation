@@ -4,6 +4,13 @@ import pandas as pd
 
 
 class Format(Enum):
+    """Enum input data format.
+
+    Attributes:
+        default: Format of data already formated for this projetc (TODO: define format).
+        format_1: Format of the given ecxel file.
+    """
+
     default = auto()
     format_1 = auto()  # format of the Results_TR_24.xls file
 
@@ -12,6 +19,7 @@ def results_tr_24_loader(file_path: Path) -> pd.DataFrame:
     return pd.read_excel(file_path, sheet_name="data", skiprows=1)
 
 
+# Associate format to corresponding loader function
 format_function_dic = {Format.format_1: results_tr_24_loader}
 
 
