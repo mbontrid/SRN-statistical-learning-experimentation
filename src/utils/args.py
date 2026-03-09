@@ -1,6 +1,7 @@
 import argparse
-from data import Format
 from pathlib import Path
+
+from utils.formater import Format
 
 
 class Args:
@@ -14,7 +15,7 @@ class Args:
             "--input",
             "-i",
             type=Path,
-            default=Path("./data/Results_TR_24.xls"),
+            default=Path("./data/input/Results_TR_24.xls"),
             help="Path to the file to be loaded.",
         )
 

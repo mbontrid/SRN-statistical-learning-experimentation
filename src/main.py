@@ -1,5 +1,5 @@
-from data import DataLoader
-from args import Args
+from utils.formater import DataLoader
+from utils.args import Args
 
 
 def main():
@@ -9,6 +9,7 @@ def main():
     data.load(args.file_path, args.format)
 
     print(data.data)
+    print(data.data.info())
 
 
 if __name__ == "__main__":
