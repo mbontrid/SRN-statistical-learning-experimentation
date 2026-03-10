@@ -21,16 +21,34 @@ You can then run the experiments with:
 uv run src/main.py
 ```
 
-## Models
+### Container
 
-### Model list
+A Containerfile will also be available for development and deployment.
 
-- [ ] [Elman SRN](https://web.stanford.edu/group/pdplab/pdphandbook/handbookch8.html)
+Install [podman](https://podman.io/) (or [docker](https://www.docker.com/) on your preferred operating system.
 
-## data
+To build the container, from the repo directory, run
 
-Input data are meant to be in the data directory.
+```bash
+podman build -t srn-statistical-learning-experimentation .
+```
 
 ## Interface
 
 For the moment, the is no interface. The only way to use this software is through the command line.
+
+## Documentation
+
+### Data
+
+Input data are meant to be in ```./data/in/```
+Output data will go to ```.data/out/```
+
+## Roadmap
+
+- [ ] [Elman SRN](https://web.stanford.edu/group/pdplab/pdphandbook/handbookch8.html)
+- [ ] Other models
+- [ ] Containerfile dev and deploy
+- [x] Load base data
+- [ ] Define and load data format
+- [ ] Make ui interface
