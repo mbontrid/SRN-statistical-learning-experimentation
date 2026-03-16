@@ -11,4 +11,10 @@ class ElmanSRN(nn.Module):
     def load_numpy(self, ndarray: np.ndarray):
         ndarray = np.array([ord(c) if isinstance(c, str) else c for c in ndarray])
         training_data = torch.from_numpy(ndarray)
+
+        if torch.accelerator.is_available():
+            print("loading a tensor in accelerator...")
+            training_data = training_data.to(torch.accelerator.current_accelerator())
+            print("loading done !")
+
         print(training_data)
