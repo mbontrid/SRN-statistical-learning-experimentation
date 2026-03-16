@@ -1,15 +1,15 @@
-from utils.formater import DataFrameLoader
+from utils.formater import LoaderToNumpy
 from utils.args import Args
 
 
 def main():
     args = Args()  # parse the terminal arguments
 
-    data = DataFrameLoader()
-    data.load(args.file_path, args.format)
+    loader = LoaderToNumpy(args.file_path, args.format)
 
-    print(data.data)
-    print(type(data.data))
+    data = loader.get()
+    print(data)
+    print(type(data))
 
 
 if __name__ == "__main__":
