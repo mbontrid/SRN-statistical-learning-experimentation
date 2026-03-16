@@ -30,7 +30,7 @@ class LoaderToNumpy:
         self.nrow: int | None = nrow  # Number of rows per yield.
 
         # Associate format to corresponding loader function
-        self._FORMAT_FUNCTION_DIC = {Format.FORMAT_1: self.results_tr_24_loader}
+        self._FORMAT_FUNCTION_DIC = {Format.FORMAT_1: self._results_tr_24_loader}
 
     @property
     def path(self):
@@ -51,11 +51,11 @@ class LoaderToNumpy:
             )
 
         self.path = path if path is not None else self.path
-        return self._load_ndarray()
+        return self._load()
 
-    def _load_dataframe(
+    def _load(
         self,
-    ) -> pd.DataFrame:
+    ) -> np.ndarray:
 
         loader_function = self._FORMAT_FUNCTION_DIC.get(self.format)
         if loader_function is None:
@@ -65,19 +65,20 @@ class LoaderToNumpy:
 
         return self.data
 
-    def _load_ndarray(self) -> np.ndarray:
-        data_frame = self._load_dataframe()
+    # ---------------------------------------------------------------
+    # methods to load arbitrary foramted data. Return standardized dataframe.
+    # ---------------------------------------------------------------
+
+    def _results_tr_24_loader(self) -> np.ndarray:
+        # usecols = ["Trial", "Condition", "ResponseLabel", "Time", "cleaned RT"]
+        usecols = ["ResponseLabel"]
+
+        data_frame = pd.read_excel(
+            self.path,
+            sheet_name="data",
+            usecols=usecols,
+        )
 
         data_ndarray = data_frame.to_numpy()
 
         return data_ndarray
-
-    # methods to load arbitrary foramted data. Return standardized dataframe.
-    def results_tr_24_loader(self):
-        data_frame = pd.read_excel(
-            self.path,
-            sheet_name="data",
-            usecols=["Trial", "Condition", "ResponseLabel", "Time", "cleaned RT"],
-        )
-
-        return data_frame
