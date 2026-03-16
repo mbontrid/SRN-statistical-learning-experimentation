@@ -23,7 +23,7 @@ class Args:
             "--format",
             "-f",
             type=Format,
-            default=Format.format_1,
+            default=Format.FORMAT_1,
             help="Format of the given file. This specify the file extension and the arbitrary formating.",
         )
 

@@ -1,15 +1,15 @@
-from utils.formater import DataLoader
+from utils.formater import LoaderToNumpy
 from utils.args import Args
 
 
 def main():
     args = Args()  # parse the terminal arguments
 
-    data = DataLoader()
-    data.load(args.file_path, args.format)
+    loader = LoaderToNumpy(args.file_path, args.format)
 
-    print(data.data)
-    print(data.data.info())
+    data = loader.get()
+    print(data)
+    print(type(data))
 
 
 if __name__ == "__main__":

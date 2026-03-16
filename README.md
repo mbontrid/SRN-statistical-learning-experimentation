@@ -2,9 +2,21 @@
 
 Experimentation (playground) of simple recursive network in the domain of human statistical learning.
 
-## Articles
+Based on the Elman SRN architecture, this project aims to search and demonstrate the models with which human learn language (sequences).
 
-- [Chunking or not chunking? How do we find words in artificial language learning?](https://psycnet.apa.org/record/2013-13580-007)
+```mermaid
+---
+title: Elman SRN
+config:
+ look: handDrawn
+---
+flowchart TB
+
+input --w--> hidden
+context --w--> hidden
+hidden --w--> output
+hidden --copy--> context
+```
 
 ## Installation
 
