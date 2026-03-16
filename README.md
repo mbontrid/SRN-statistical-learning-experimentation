@@ -23,6 +23,8 @@ hidden --copy--> context
 This project use the [UV](https://github.com/astral-sh/uv) package manager.
 To install the dependencies, run the following command from the repo directory:
 
+### client
+
 ```bash
 uv sync
 ```
@@ -30,7 +32,8 @@ uv sync
 You can then run the experiments with:
 
 ```bash
-uv run src/main.py
+uv run src/main.py --help
+
 ```
 
 ### Container
@@ -63,4 +66,5 @@ Output data will go to ```.data/out/```
 - [ ] Containerfile dev and deploy
 - [x] Load base data
 - [ ] Define and load data format
+- [ ] Jupyter notebook
 - [ ] Make ui interface
