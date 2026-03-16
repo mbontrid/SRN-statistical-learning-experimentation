@@ -24,6 +24,7 @@ class Args:
             "-f",
             type=Format,
             default=Format.FORMAT_1,
+            choices=list(Format),
             help="Format of the given file. This specify the file extension and the arbitrary formating.",
         )
 
