@@ -1,15 +1,15 @@
-from utils.formater import DataLoader
+from utils.formater import DataFrameLoader
 from utils.args import Args
 
 
 def main():
     args = Args()  # parse the terminal arguments
 
-    data = DataLoader()
+    data = DataFrameLoader()
     data.load(args.file_path, args.format)
 
     print(data.data)
-    print(data.data.info())
+    print(type(data.data))
 
 
 if __name__ == "__main__":

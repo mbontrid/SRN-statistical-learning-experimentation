@@ -4,26 +4,18 @@ import pandas as pd
 
 
 class Format(Enum):
-    """Enum input data format.
+    """Enum of data formats.
 
     Attributes:
         default: Format of data already formated for this projetc (TODO: define format).
         format_1: Format of the given ecxel file.
     """
 
-    default = auto()
-    format_1 = auto()  # format of the Results_TR_24.xls file
+    DEFAULT = auto()
+    FORMAT_1 = auto()  # format of the Results_TR_24.xls file
 
 
-def results_tr_24_loader(file_path: Path) -> pd.DataFrame:
-    return pd.read_excel(file_path, sheet_name="data", skiprows=1)
-
-
-# Associate format to corresponding loader function
-format_function_dic = {Format.format_1: results_tr_24_loader}
-
-
-class DataLoader:
+class DataFrameLoader:
     """Arbitrary formated data loader.
     As input format in completely arbitrary, the format has to be explicitly specified.
 
@@ -34,6 +26,9 @@ class DataLoader:
     def __init__(self):
         self.path: Path
         self.data: pd.DataFrame
+
+        # Associate format to corresponding loader function
+        self.FORMAT_FUNCTION_DIC = {Format.FORMAT_1: self.results_tr_24_loader}
 
     def load(
         self,
@@ -46,10 +41,20 @@ class DataLoader:
 
         self.path = file_path
 
-        loader_function = format_function_dic.get(format)
+        loader_function = self.FORMAT_FUNCTION_DIC.get(format)
         if loader_function is None:
             raise ValueError(f"No loader function defined for format: {format}")
 
-        self.data = loader_function(file_path)
+        self.data = loader_function()
 
         return self.data
+
+    # methods to load arbitrary foramted data. Return standardized dataframe.
+    def results_tr_24_loader(self):
+        data_frame = pd.read_excel(
+            self.path,
+            sheet_name="data",
+            usecols=["Trial", "Condition", "ResponseLabel", "Time", "cleaned RT"],
+        )
+
+        return data_frame
