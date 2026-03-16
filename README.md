@@ -2,6 +2,22 @@
 
 Experimentation (playground) of simple recursive network in the domain of human statistical learning.
 
+Based on the Elman SRN architecture, this project aims to search and demonstrate the models with which human learn language (sequences).
+
+```mermaid
+---
+title: Elman SRN
+config:
+ look: handDrawn
+---
+flowchart TB
+
+input --w--> hidden
+context --w--> hidden
+hidden --w--> output
+hidden --copy--> context
+```
+
 ## Installation
 
 This project use the [UV](https://github.com/astral-sh/uv) package manager.
