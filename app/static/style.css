@@ -1,0 +1,150 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: flex-start;
+}
+
+h2 {
+    color: #333;
+}
+
+input {
+    font-size: 16px;
+    padding: 8px;
+}
+
+.upper-pane {
+    width: 100%;
+    height: 70%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.parameters-form {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.import-box {
+    width: 100%;
+    padding: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.import-box__import-input {
+    display: none;
+}
+
+.import-box__import-button {
+    width: 100%;
+    height: 40px;
+    background-color: #2c7be5;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.parameters-form__train-button {
+    font-size: 18px;
+}
+
+
+.ui-button {
+    padding: 8px 12px;
+    background: #2c7be5;
+    color: white;
+    border: none;
+    border-radius: 4px;
+}
+
+.ui-button:hover {
+    background: #1a5fc0;
+}
+
+/* Loading overlay */
+
+.loading-overlay {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 50%;
+    height: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    border-radius: 12px;
+    gap: 12px;
+}
+
+.training-status {
+    margin-top: 20px;
+}
+
+.progress-bar {
+    width: 400px;
+    height: 20px;
+    background: #eee;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#progress-fill {
+    width: 0%;
+    height: 100%;
+    background: #2c7be5;
+    transition: width 0.3s;
+}
+
+.prediction-pane {
+    width: calc(100% - 20px);
+    height: 30%;
+    background-color: white;
+    padding: 12px;
+    align-self: center;
+    display: flex;
+    flex-direction: column;
+}
+
+.prediction-form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+}
+
+.prediction-form__prediction-input {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px;
+}
+
+.prediction-form__prediction-submit {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px;
+}

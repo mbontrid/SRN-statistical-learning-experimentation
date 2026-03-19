@@ -1,0 +1,5 @@
+- Evaluer le modèle à chaque timestep/learning rate en fonction de la variabilité (taille de l'alphabet) sur la partie aléatoire
+- Refaire les PCA en fonction de la variabilité
+- Input -> peu importe, juste documenter le format attendu
+- taille de la séquence -> gérer des séquences de nombre de lettres (positions) variables -> devrait être simple vu que le modèle processe les inputs lettre par lettre.
+

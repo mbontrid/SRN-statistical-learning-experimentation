@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>SRN Trainer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+    <script src="https://cdn.plot.ly/plotly-3.4.0.min.js"
+        charset="utf-8"></script>
+</head>
+
+<body>
+
+    <div class="upper-pane">
+
+        <form method="POST" enctype="multipart/form-data"
+            class="parameters-form">
+
+            <h2>Train SRN</h2>
+
+            <div class="import-box">
+                <input type="file" name="dataset"
+                    class="import-box__import-input">
+                <button type="button"
+                    class="import-box__import-button ui-button">Import train
+                    set</button>
+
+            </div>
+
+            Hidden size:
+            <input type="number" name="hidden_size" value="20"><br>
+
+            Learning rate:
+            <input type="text" name="lr" value="0.05"><br>
+
+            Mu:
+            <input type="text" name="mu" value="0"><br>
+
+            Clearval:
+            <input type="text" name="clearval" value="0.5"><br>
+
+            Epochs:
+            <input type="number" name="epochs" value="100"><br><br>
+
+            <button type="submit" name="train"
+                class="parameters-form__train-button ui-button">Train</button>
+
+        </form>
+
+        <div class="cluster-pane">
+            <div id="plot-container"></div>
+        </div>
+
+    </div>
+
+
+
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="training-status">
+
+            <h3>Training progress</h3>
+
+            <div class="progress-bar">
+                <div id="progress-fill"></div>
+            </div>
+
+            <p id="epoch-text"></p>
+            <p id="loss-text"></p>
+
+        </div>
+        <div class="loading-overlay__loading-box">
+            <div class="loading-overlay__loading-boxspinner"></div>
+            <p>Training neural network… please wait</p>
+        </div>
+    </div>
+
+    <div class="prediction-pane">
+
+        <h2>Predict Next Token</h2>
+
+        <form method="POST" class="prediction-form">
+
+            Token:
+            <input type="text" name="token"
+                class="prediction-form__prediction-input">
+
+            <button type="submit" name="predict"
+                class="prediction-form__prediction-submit">Predict</button>
+
+        </form>
+
+        <h3>{{ result }}</h3>
+    </div>
+
+</body>
+
+</html>
