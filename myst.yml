@@ -1,0 +1,17 @@
+# See docs at: https://mystmd.org/guide/frontmatter
+version: 1
+project:
+  id: fff0a7dd-1f91-41a0-9178-64b1e1267c40
+  # title: SRN comparison with human learning
+  # description:
+  keywords:
+    - srn
+    - statical-learning
+  # authors: []
+  github: https://github.com/mbontrid/SRN-statistical-learning-experimentation
+  # To autogenerate a Table of Contents, run "jupyter book init --write-toc"
+site:
+  template: book-theme
+  # options:
+  #   favicon: favicon.ico
+  #   logo: site_logo.png
