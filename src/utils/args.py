@@ -1,7 +1,7 @@
 import argparse
 from pathlib import Path
 
-from utils.formater import Format
+from data.formater import Format
 
 
 class Args:

@@ -1,6 +1,5 @@
-from utils.formater import LoaderToNumpy
+from data.formater import LoaderToNumpy
 from utils.args import Args
-from models.Elman_SRN.torch_Elman_SRN import ElmanSRN
 
 
 def main():
@@ -14,10 +13,6 @@ def main():
     print(data.dtype)
     print(data.shape)
     print(type(data[0]))
-
-    srn = ElmanSRN()
-
-    srn.load_numpy(data)
 
 
 if __name__ == "__main__":

@@ -28,9 +28,14 @@ class LoaderToNumpy:
         self._path: Path = path
         self.format: Format = format
         self.nrow: int | None = nrow  # Number of rows per yield.
+        if self.nrow is not None:
+            raise NotImplementedError("nrow yiel not yet implemented")
 
         # Associate format to corresponding loader function
-        self._FORMAT_FUNCTION_DIC = {Format.FORMAT_1: self._results_tr_24_loader}
+
+    @property
+    def format_function(self) -> dict:
+        return {Format.FORMAT_1: self._results_tr_24_loader}
 
     @property
     def path(self):
@@ -57,7 +62,7 @@ class LoaderToNumpy:
         self,
     ) -> np.ndarray:
 
-        loader_function = self._FORMAT_FUNCTION_DIC.get(self.format)
+        loader_function = self.format_function.get(self.format)
         if loader_function is None:
             raise ValueError(f"No loader function defined for format: {format}")
 
