@@ -16,7 +16,7 @@ class Format(Enum):
     FORMAT_1 = auto()  # format of the Results_TR_24.xls file
 
 
-class LoaderToNumpy:
+class PandasLoader:
     """Arbitrary formated file data loader.
     As input format in completely arbitrary, the format has to be explicitly specified.
 
@@ -48,19 +48,14 @@ class LoaderToNumpy:
 
         self._path = p
 
-    def get(self, path: Path | None = None, nrow: int | None = None) -> np.ndarray:
-        self.nrow = nrow
-        if self.nrow is not None:
-            raise NotImplementedError(
-                "nrow (to yield array) argument is not implemented yet."
-            )
+    def get(self, path: Path | None = None) -> pd.DataFrame:
 
         self.path = path if path is not None else self.path
         return self._load()
 
     def _load(
         self,
-    ) -> np.ndarray:
+    ) -> pd.DataFrame:
 
         loader_function = self.format_function.get(self.format)
         if loader_function is None:
@@ -74,16 +69,17 @@ class LoaderToNumpy:
     # methods to load arbitrary foramted data. Return standardized dataframe.
     # ---------------------------------------------------------------
 
-    def _results_tr_24_loader(self) -> np.ndarray:
+    def _results_tr_24_loader(self) -> pd.DataFrame:
         # usecols = ["Trial", "Condition", "ResponseLabel", "Time", "cleaned RT"]
-        usecols = ["ResponseLabel"]
+        usecols = ["Trial", "ResponseLabel"]
 
-        data_frame = pd.read_excel(
+        df = pd.read_excel(
             self.path,
             sheet_name="data",
             usecols=usecols,
         )
+        df["Subject"] = (df["Trial"] == 1).cumsum()
+        df["TrialIndex"] = df.groupby("Subject").cumcount()
+        df = df.pivot(index="TrialIndex", columns="Subject", values="ResponseLabel")
 
-        data_ndarray = data_frame.to_numpy()
-
-        return data_ndarray
+        return df

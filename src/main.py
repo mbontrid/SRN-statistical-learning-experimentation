@@ -1,18 +1,17 @@
-from data.formater import LoaderToNumpy
+from data.formater import PandasLoader
 from utils.args import Args
 
 
 def main():
     args = Args()  # parse the terminal arguments
 
-    loader = LoaderToNumpy(args.file_path, args.format)
+    loader = PandasLoader(args.file_path, args.format)
 
     data = loader.get()
-    data = data.flatten()
     print(data)
-    print(data.dtype)
-    print(data.shape)
-    print(type(data[0]))
+    test = data.to_numpy().T
+    print(test.shape)
+    print(test)
 
 
 if __name__ == "__main__":
