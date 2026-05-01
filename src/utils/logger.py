@@ -7,7 +7,7 @@ def get_logger(name: str = "logger"):
     return logging.getLogger(name)
 
 
-class logger(logging.Logger):
+class Logger(logging.Logger):
     def __init__(
         self,
         name: str = "logger",

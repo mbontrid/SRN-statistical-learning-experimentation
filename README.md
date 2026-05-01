@@ -56,8 +56,8 @@ For the moment, the is no interface. The only way to use this software is throug
 
 ### Data
 
-Input data are meant to be in ```./data/in/```
-Output data will go to ```.data/out/```
+Input data are meant to be in `./data/input/`.
+Output data will go to `./data/output/`.
 
 ## Roadmap
 

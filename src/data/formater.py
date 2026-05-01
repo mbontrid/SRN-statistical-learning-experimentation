@@ -1,7 +1,6 @@
 from enum import Enum, auto
 from pathlib import Path
 import pandas as pd
-import numpy as np
 
 
 class Format(Enum):
@@ -25,7 +24,7 @@ class PandasLoader:
     """
 
     def __init__(self, path: Path, format: Format, nrow: int | None = None):
-        self._path: Path = path
+        self._path: Path = Path(path).resolve()
         self.format: Format = format
         self.nrow: int | None = nrow  # Number of rows per yield.
         if self.nrow is not None:
@@ -44,7 +43,7 @@ class PandasLoader:
     @path.setter
     def path(self, p):
         if not p.exists():
-            raise FileNotFoundError(f"File {self.path} not found.")
+            raise FileNotFoundError(f"File {p} not found.")
 
         self._path = p
 

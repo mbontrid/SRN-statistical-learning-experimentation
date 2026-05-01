@@ -10,6 +10,9 @@ project:
   # authors: []
   github: https://github.com/mbontrid/SRN-statistical-learning-experimentation
   # To autogenerate a Table of Contents, run "jupyter book init --write-toc"
+  toc:
+    - file: jupyter/intro.md
+    - file: jupyter/srn_learn.ipynb
 site:
   template: book-theme
   # options:
