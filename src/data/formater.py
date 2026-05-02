@@ -72,13 +72,9 @@ class PandasLoader:
         # usecols = ["Trial", "Condition", "ResponseLabel", "Time", "cleaned RT"]
         usecols = ["Trial", "ResponseLabel"]
 
-        df = pd.read_excel(
-            self.path,
-            sheet_name="data",
-            usecols=usecols,
-        )
+        df = pd.read_excel(self.path, sheet_name="data", usecols=usecols)
         df["Subject"] = (df["Trial"] == 1).cumsum()
         df["TrialIndex"] = df.groupby("Subject").cumcount()
         df = df.pivot(index="TrialIndex", columns="Subject", values="ResponseLabel")
 
-        return df
+        return df.astype(str)

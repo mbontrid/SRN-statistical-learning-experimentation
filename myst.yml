@@ -2,7 +2,7 @@
 version: 1
 project:
   id: fff0a7dd-1f91-41a0-9178-64b1e1267c40
-  # title: SRN comparison with human learning
+  title: SRN comparison with human learning
   # description:
   keywords:
     - srn
@@ -18,3 +18,4 @@ site:
   # options:
   #   favicon: favicon.ico
   #   logo: site_logo.png
+

@@ -1,6 +1,8 @@
 # SRN-statistical-learning-experimentation
 
-Experimentation (playground) of simple recursive network in the domain of human statistical learning.
+The [experimentation notebook](https://mbontrid.github.io/SRN-statistical-learning-experimentation) can be found here.
+
+Experimentation of simple recursive network in the domain of human statistical learning.
 
 Based on the Elman SRN architecture, this project aims to search and demonstrate the models with which human learn language (sequences).
 
@@ -36,22 +38,6 @@ uv run src/main.py --help
 
 ```
 
-### Container
-
-A Containerfile will also be available for development and deployment.
-
-Install [podman](https://podman.io/) (or [docker](https://www.docker.com/) on your preferred operating system.
-
-To build the container, from the repo directory, run
-
-```bash
-podman build -t srn-statistical-learning-experimentation .
-```
-
-## Interface
-
-For the moment, the is no interface. The only way to use this software is through the command line.
-
 ## Documentation
 
 ### Data
@@ -63,8 +49,7 @@ Output data will go to `./data/output/`.
 
 - [ ] [Elman SRN](https://web.stanford.edu/group/pdplab/pdphandbook/handbookch8.html)
 - [ ] Other models
-- [ ] Containerfile dev and deploy
 - [x] Load base data
-- [ ] Define and load data format
-- [ ] Jupyter notebook
+- [x] Define and load data format
+- [x] Jupyter notebook
 - [ ] Make ui interface
