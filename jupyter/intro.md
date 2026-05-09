@@ -1,5 +1,8 @@
 # Introduction
 
+This notebook implement a comparison and analyze the learning inference of sequences by human subjects.
+See: [Simple recurrent neural networks: a simple model that captures the structure in sequences](https://web.stanford.edu/group/pdplab/pdphandbook/handbookch8.html#x24-1150027)
+
 I am a book about ... something! Wikipedia has [information about books](wiki:book): hover over the link for more information.
 
 % An admonition containing a note
@@ -19,7 +22,7 @@ x \times y = z
 Sometimes when reading it is helpful to foster a _tranquil_ environment. The image in [](#fig:mountains) would be a perfect spot!
 
 % A figure of a photograph of some mountains, followed by a caption
-:::{figure} https://github.com/rowanc1/pics/blob/main/mountains.png?raw=true
+:::{figure} <https://github.com/rowanc1/pics/blob/main/mountains.png?raw=true>
 :label: fig:mountains
 
 A photograph of some beautiful mountains to look at whilst reading.
