@@ -7,8 +7,10 @@
 import sys
 from pathlib import Path
 import numpy as np
+from numpy.typing import ArrayLike
 import torch
 from typing import Callable, Sequence
+from tqdm import trange
 
 
 # import local packages
@@ -73,66 +75,109 @@ hidden --> output
 """
 
 
+# %%
 class SRN_subject:
     def __init__(
         self,
         input_size: int,
         hidden_size: int,
-        out_size: int,
-        mu: float,
-        activation: Callable = torch.nn.Tanh,
+        output_size: int,
+        activation: list[Callable] = [torch.nn.Tanh],
         learn_rate: float = 0.05,
+        initial_w_unif: tuple[float, float] = (-0.1, 0.1)
     ):
 
         self.lr = learn_rate
-        self.mu = mu
         self.activation = activation
 
-        lim_unif = (-0.1, 0.1)
-        self.Whh = make_uniform_tensor(
-            extremum=lim_unif, shape=[out_size, hidden_size + input_size], grad=True
-        )
+        self.Wxh = make_uniform_tensor(
+            extremum=initial_w_unif, shape=[hidden_size, input_size + hidden_size], grad=True
+        ).requires_grad_()
+        
+        self.Why = make_uniform_tensor(
+            extremum=initial_w_unif, shape=[output_size, hidden_size], grad=True
+        ).requires_grad_()
 
-        self.context = torch.ones(hidden_size)
+        self.context = torch.zeros(hidden_size)
 
     def forward(self, x: torch.Tensor, y: torch.Tensor | None = None):
         # input of hidden layer: input concatenated with previous output of the hidden layer
         x_cat_context = torch.cat([x, self.context], dim=0)
 
-        h = torch.nn.Softmax(self.Whh @ x_cat_context)
+        h = activation[0](self.Wxh @ x_cat_context)
         self.context = h
-        return h
+        y = activation[1](self.Why @ h)
+        return y
 
-    def train_step(self, x, target):
-        y = self.forward(x)
+    def backprop(self, y_pred, y):
 
-        dy = y - target
+        if self.Wxh.grad is None:
+            e = RuntimeError("Wxh grad is None")
+            logger.error(e)
+            raise e
+        if self.Why.grad is None:
+            e = RuntimeError("Why grad is None")
+            logger.error(e)
+            raise e
 
-        dWh = np.outer(dy, y)
-        dby = dy
+        loss = torch.mean((y_pred - y) ** 2)
+        loss.backward()
 
-        dh = self.Why.T @ dy
-        dh_raw = (1 - h**2) * dh
+        with torch.no_grad():
+            self.Wxh -= self.lr * self.Wxh.grad
+            self.Why -= self.lr * self.Why.grad
+            self.Wxh.grad.zero_()
+            self.Why.grad.zero_()
 
-        dWxh = np.outer(dh_raw, x)
-        dWhh = np.outer(dh_raw, self.context)
-        dbh = dh_raw
-
-        self.Why -= self.lr * dWhy
-        self.by -= self.lr * dby
-
-        self.Wxh -= self.lr * dWxh
-        self.Whh -= self.lr * dWhh
-        self.bh -= self.lr * dbh
-
-        self.context = h + self.mu * self.context
-
-        loss = -np.sum(target * np.log(y + 1e-12))
         return loss
 
 
+
+# %%[md]
+```
+For the backpropagation, when we learn patern on on a screen
+```
+
 # %%
 
+input_size = len(unique_vals)
+hidden_size = len(unique_vals)
+output_size = len(unique_vals)
+
+activation = [torch.nn.Tanh(), torch.nn.Softmax()]
+lr = 0.1
+
+
+for i in trange(encoded.shape[0]):
+    srn_subject = SRN_subject(
+        input_size=input_size,
+        hidden_size=hidden_size,
+        output_size=output_size,
+        activation=activation,
+        learn_rate=lr,
+    )
+
+    for j in range(encoded.shape[1] - 1):
+        x = encoded[i, j]
+        y = encoded[i, j + 1]
+
+        # make a grid with the previous value at the encoded label position.
+        x_grid = torch.ones(len(unique_vals)) * -1
+        x_grid[x] = 1
+
+        # make a grid with the response value at the encoded label position.
+        y_grid = torch.ones(len(unique_vals)) * -1
+        y_grid[y] = 1
+
+        y_pred_grid = srn_subject.forward(x_grid)
+        loss = srn_subject.backprop(y_pred_grid, y_grid)
+        y_pred = torch.argmax(y_pred_grid)
+        logger.debug(
+            f"subject {i}, trial {j}, x={x}, y={y}, y_pred={y_pred}, loss={loss}"
+        )
+
+
+# %%
 
 class SRN(AbstractNNModel):
     def __init__(self, params):
@@ -222,3 +267,4 @@ class SRN(AbstractNNModel):
 
         loss = -np.sum(target * np.log(y + 1e-12))
         return loss
+
