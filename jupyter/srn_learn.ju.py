@@ -35,12 +35,12 @@ logger.trace("TRACE logger activated")
 loader = PandasLoader(args["input"], args["format"])
 responses = loader.get()
 logger.info(f"subjects response per trial: \n {responses}")
+
 # converting to array of shape (subjects, responses)
 responses = responses.to_numpy().T
-logger.info(f"responses after transposition= {responses}")
-# responses = np.expand_dims(responses, axis=-1)
-# logger.trace(f"response after expansions on last dim={responses}")
-# get set of responses values and their order of appearance(giving them a numerical id)
+logger.debug(f"responses after transposition= {responses}")
+
+# get set of responses values and their order of appearance(giving them a numerical id) restoring the value from it's encoded index is easy.
 unique_vals, encoded = np.unique(responses.reshape(-1), return_inverse=True)
 logger.info(f"unique values (set)={unique_vals}")
 logger.info(f"encoded values={encoded}")
@@ -52,9 +52,11 @@ logger.debug(f"final encoded shape (subjests, responses)={encoded.shape}")
 def make_uniform_tensor(
     extremum: tuple[float, float], shape: Sequence[int], grad: bool
 ):
-    return extremum[0] + (extremum[1] - extremum[0]) * torch.rand(
-        size=shape, requires_grad=grad
-    )
+    t = torch.empty(*shape)
+    t.uniform_(*extremum)
+    if grad:
+        t.requires_grad_()
+    return t
 
 
 # %% [md]
@@ -83,20 +85,24 @@ class SRN_subject:
         hidden_size: int,
         output_size: int,
         activation: list[Callable] = [torch.nn.Tanh],
-        learn_rate: float = 0.05,
-        initial_w_unif: tuple[float, float] = (-0.1, 0.1)
+        lr: float = 0.05,
+        initial_w_unif: tuple[float, float] = (-0.1, 0.1),
+        loss_fn: Callable = torch.nn.MSELoss(),
     ):
 
-        self.lr = learn_rate
+        self.lr = lr
         self.activation = activation
+        self.loss_fn = loss_fn
 
         self.Wxh = make_uniform_tensor(
-            extremum=initial_w_unif, shape=[hidden_size, input_size + hidden_size], grad=True
-        ).requires_grad_()
-        
+            extremum=initial_w_unif,
+            shape=[hidden_size, input_size + hidden_size],
+            grad=True,
+        )
+
         self.Why = make_uniform_tensor(
             extremum=initial_w_unif, shape=[output_size, hidden_size], grad=True
-        ).requires_grad_()
+        )
 
         self.context = torch.zeros(hidden_size)
 
@@ -105,23 +111,19 @@ class SRN_subject:
         x_cat_context = torch.cat([x, self.context], dim=0)
 
         h = activation[0](self.Wxh @ x_cat_context)
-        self.context = h
+        self.context = h.detach()  # detach the context from the computational graph to prevent backprop through time
         y = activation[1](self.Why @ h)
         return y
 
     def backprop(self, y_pred, y):
 
-        if self.Wxh.grad is None:
-            e = RuntimeError("Wxh grad is None")
-            logger.error(e)
-            raise e
-        if self.Why.grad is None:
-            e = RuntimeError("Why grad is None")
-            logger.error(e)
-            raise e
-
-        loss = torch.mean((y_pred - y) ** 2)
+        loss = self.loss_fn(y_pred, y)
         loss.backward()
+
+        if self.Wxh.grad is None or self.Why.grad is None:
+            e = RuntimeError("gradient missing")
+            logger.error(e)
+            raise e
 
         with torch.no_grad():
             self.Wxh -= self.lr * self.Wxh.grad
@@ -132,21 +134,36 @@ class SRN_subject:
         return loss
 
 
+# %% [md]
+"""
+Question:
+For the backpropagation, when we learn patern on on a screen, how do we see the cases with no stimulus? making them -1 (opposite to the cell with stimulus 1).
+"""
 
-# %%[md]
-```
-For the backpropagation, when we learn patern on on a screen
-```
+
+# %% [md]
+"""
+### hyperparameters
+"""
 
 # %%
 
-input_size = len(unique_vals)
 hidden_size = len(unique_vals)
-output_size = len(unique_vals)
-
-activation = [torch.nn.Tanh(), torch.nn.Softmax()]
+activation = [torch.nn.Tanh(), torch.nn.Sigmoid()]
 lr = 0.1
+initial_w_unif = (-0.1, 0.1)
+loss_fn = torch.nn.MSELoss()
 
+extremum_grid = (0.0, 1.0)
+
+# %% [md]
+"""
+## Prediction and backprpagation
+"""
+
+# %%
+input_size = len(unique_vals)
+output_size = len(unique_vals)
 
 for i in trange(encoded.shape[0]):
     srn_subject = SRN_subject(
@@ -154,117 +171,30 @@ for i in trange(encoded.shape[0]):
         hidden_size=hidden_size,
         output_size=output_size,
         activation=activation,
-        learn_rate=lr,
+        lr=lr,
+        initial_w_unif=initial_w_unif,
+        loss_fn=loss_fn,
     )
 
     for j in range(encoded.shape[1] - 1):
         x = encoded[i, j]
-        y = encoded[i, j + 1]
+        y_true = encoded[i, j + 1]
 
         # make a grid with the previous value at the encoded label position.
-        x_grid = torch.ones(len(unique_vals)) * -1
-        x_grid[x] = 1
+        x_grid = torch.ones(len(unique_vals)) * extremum_grid[0]
+        x_grid[x] = extremum_grid[1]
 
         # make a grid with the response value at the encoded label position.
-        y_grid = torch.ones(len(unique_vals)) * -1
-        y_grid[y] = 1
+        y_grid = torch.ones(len(unique_vals)) * extremum_grid[0]
+        y_grid[y_true] = extremum_grid[1]
 
         y_pred_grid = srn_subject.forward(x_grid)
         loss = srn_subject.backprop(y_pred_grid, y_grid)
+
+        y_true = unique_vals[y_true]
         y_pred = torch.argmax(y_pred_grid)
-        logger.debug(
-            f"subject {i}, trial {j}, x={x}, y={y}, y_pred={y_pred}, loss={loss}"
+        y_pred_label = unique_vals[y_pred]
+        x_label = unique_vals[x]
+        logger.trace(
+            f"subject {i}, trial {j}, x={x_label}, y={y_true}, y_pred={y_pred_label}, loss={loss}"
         )
-
-
-# %%
-
-class SRN(AbstractNNModel):
-    def __init__(self, params):
-        self.allowed_parameters = {
-            "vocab_size": int,
-            "hidden_size": int,
-            "lr": float,
-            "mu": float,
-            "clearval": float,
-            "epochs": int,
-        }
-        self.init_model(params)
-
-    def validate_parameters(self, params):
-        for parameter, value in params.items():
-            if parameter not in self.allowed_parameters.keys():
-                raise ParameterNotAllowedException(parameter)
-            expected_type = self.allowed_parameters[parameter]
-            if not isinstance(value, expected_type):
-                raise WrongParameterTypeException(
-                    parameter, value.type(), expected_type
-                )
-        for parameter in self.allowed_parameters:
-            if parameter not in params.key():
-                raise MissingParameterException(parameter)
-        return True
-
-    def init_model(self, params):
-
-        self.validate_parameters(params)
-        self.input_size = params["vocab_size"]
-        self.hidden_size = params["hidden_size"]
-        self.output_size = params["vocab_size"]
-
-        self.lr = params["lr"]
-        self.mu = params["mu"]
-        self.clearval = params["clearval"]
-
-        self.Wxh = np.random.uniform(-0.1, 0.1, (self.hidden_size, self.output_size))
-        self.Whh = np.random.uniform(-0.1, 0.1, (self.hidden_size, self.hidden_size))
-        self.Why = np.random.uniform(-0.1, 0.1, (self.output_size, self.hidden_size))
-
-        self.bh = np.zeros(self.hidden_size)
-        self.by = np.zeros(self.output_size)
-
-        self.reset_context()
-
-    def reset_context(self):
-        self.context = np.ones(self.hidden_size) * self.clearval
-
-    def softmax(self, x):
-        e = np.exp(x - np.max(x))
-        return e / np.sum(e)
-
-    def forward(self, x):
-
-        h = np.tanh(self.Wxh @ x + self.Whh @ self.context + self.bh)
-
-        y = self.softmax(self.Why @ h + self.by)
-
-        return h, y
-
-    def train_step(self, x, target):
-
-        h, y = self.forward(x)
-
-        dy = y - target
-
-        dWhy = np.outer(dy, h)
-        dby = dy
-
-        dh = self.Why.T @ dy
-        dh_raw = (1 - h**2) * dh
-
-        dWxh = np.outer(dh_raw, x)
-        dWhh = np.outer(dh_raw, self.context)
-        dbh = dh_raw
-
-        self.Why -= self.lr * dWhy
-        self.by -= self.lr * dby
-
-        self.Wxh -= self.lr * dWxh
-        self.Whh -= self.lr * dWhh
-        self.bh -= self.lr * dbh
-
-        self.context = h + self.mu * self.context
-
-        loss = -np.sum(target * np.log(y + 1e-12))
-        return loss
-
