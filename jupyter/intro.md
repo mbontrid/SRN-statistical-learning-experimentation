@@ -3,6 +3,8 @@
 This notebook implement a comparison and analyze the learning inference of sequences by human subjects.
 See: [Simple recurrent neural networks: a simple model that captures the structure in sequences](https://web.stanford.edu/group/pdplab/pdphandbook/handbookch8.html#x24-1150027)
 
+# template
+
 I am a book about ... something! Wikipedia has [information about books](wiki:book): hover over the link for more information.
 
 % An admonition containing a note
