@@ -37,6 +37,7 @@ logger = setup_logger(name="logger", level=logger_level)
 logger.info("logger set to info level")
 logger.trace("TRACE logger activated")
 
+logger.debug(f"arguments dictionnray: {args}")
 
 # %% [md]
 """
@@ -144,11 +145,6 @@ class SRN_subject:
         loss = self.loss_fn(y_pred, y)
         loss.backward()  # compute gradients
 
-        if self.Wxh.grad is None or self.Why.grad is None:
-            e = RuntimeError("gradient missing")
-            logger.error(e)
-            raise e
-
         with torch.no_grad():
             self.Wxh -= self.lr * self.Wxh.grad
             self.Why -= self.lr * self.Why.grad
@@ -170,13 +166,15 @@ For the backpropagation, when we learn patern on on a screen, how do we see the 
 # %% [md]
 """
 ### hyperparameters
+Hyperparameters of the srn.
 """
 
 # %%
 
 hidden_size = len(unique_vals)
 activation: tuple[Callable, Callable] = (torch.nn.Tanh(), torch.nn.Sigmoid())
-lr = 0.1
+lr = 0.05
+# extremum of the uniform distribution for the initial weights.
 initial_w_unif = (-0.1, 0.1)
 loss_fn = torch.nn.MSELoss()
 
@@ -185,6 +183,9 @@ extremum_grid = (
     0.0,
     1.0,
 )
+
+# how many subjects to compute.
+subject_to_test = 0.1
 
 # %% [md]
 """
@@ -202,7 +203,7 @@ input_size = len(unique_vals)
 output_size = len(unique_vals)
 
 
-for subject in range(encoded.shape[0]):
+for subject in range(int(encoded.shape[0] * subject_to_test)):
     # instantiate a new srn for each subject.
     srn_subject = SRN_subject(
         input_size=input_size,
@@ -238,7 +239,7 @@ for subject in range(encoded.shape[0]):
 
         if logger_level == "TRACE":
             # only print trials with no embeddings (random values)
-            if y_true in ["d", "e", "f"]:
+            if y_true_label in ["d", "e", "f"]:
                 logger.trace(
-                    f"subject {subject}, trial {trial}, x={x_label}, y={y_true_label}, y_pred={y_pred_label}, loss={loss}"
+                    f"subject {subject}, trial {trial}, x={x_label}, y={y_true_label}, y_pred={y_pred_label}, correct={y_true_label == y_pred_label}, loss={loss}"
                 )
