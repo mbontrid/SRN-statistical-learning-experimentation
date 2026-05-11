@@ -77,3 +77,4 @@ If possible, edit the .ipynb files indirectly with it's .ju.py counterpart. (usi
 - [x] Define and load data format
 - [x] Jupyter notebook
 - [ ] Make ui interface
+- [ ] Authors name ?

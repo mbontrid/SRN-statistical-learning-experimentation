@@ -8,12 +8,11 @@ project:
     - srn
     - statical-learning
     - elman srn
-  authors: [
-    DESTREBECQZ Arnaud
-    PINTO ARATA Leonardo
-    CNUDDE Anthony
-    BONTRIDDER Milan
-  ]
+  authors: 
+    - DESTREBECQZ Arnaud
+    - PINTO ARATA Leonardo
+    - CNUDDE Anthony
+    - BONTRIDDER Milan
   github: https://github.com/mbontrid/SRN-statistical-learning-experimentation
   # To autogenerate a Table of Contents, run "jupyter book init --write-toc"
   toc:

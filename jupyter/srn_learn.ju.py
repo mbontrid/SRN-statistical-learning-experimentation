@@ -129,15 +129,18 @@ class SRN_subject:
             extremum=initial_w_unif, shape=[output_size, hidden_size], grad=True
         )
 
+        self.bh = torch.zeros(hidden_size, requires_grad=True)
+        self.by = torch.zeros(output_size, requires_grad=True)
+
         self.context = torch.zeros(hidden_size)
 
     def forward(self, x: torch.Tensor, y: torch.Tensor | None = None):
         # input of hidden layer: input concatenated with previous output of the hidden layer
         x_cat_context = torch.cat([x, self.context], dim=0)
 
-        h: torch.Tensor = activation[0](self.Wxh @ x_cat_context)
+        h: torch.Tensor = activation[0](self.Wxh @ x_cat_context + self.bh)
         self.context = h.clone().detach()  # detach the context from the computational graph to prevent backprop through time
-        y = activation[1](self.Why @ h)
+        y = activation[1](self.Why @ h + self.by)
         return y
 
     def backprop(self, y_pred, y):
@@ -148,10 +151,14 @@ class SRN_subject:
         with torch.no_grad():
             self.Wxh -= self.lr * self.Wxh.grad
             self.Why -= self.lr * self.Why.grad
+            self.bh -= self.lr * self.bh.grad
+            self.by -= self.lr * self.by.grad
 
             # reset the gradients.
             self.Wxh.grad.zero_()
             self.Why.grad.zero_()
+            self.bh.grad.zero_()
+            self.by.grad.zero_()
 
         return loss
 
@@ -172,7 +179,7 @@ Hyperparameters of the srn.
 # %%
 
 hidden_size = len(unique_vals)
-activation: tuple[Callable, Callable] = (torch.nn.Tanh(), torch.nn.Sigmoid())
+activation = (torch.nn.Tanh(), torch.nn.Sigmoid())
 lr = 0.05
 # extremum of the uniform distribution for the initial weights.
 initial_w_unif = (-0.1, 0.1)
