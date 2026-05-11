@@ -38,9 +38,9 @@ uv run src/main.py --help
 
 ## Documentation
 
-One of the main purpose of this project is making a parallel between the human learning of sequences and programmed behavior (a simple recurrent neural network for the moment). As such, perfect transparency and code documentation is needed. The use of complex libraries is prohibited allowing everyone to read carefully the code and understanding it's behavior.
+One of the main purpose of this project is experimenting with the human learning of sequences  and a simple recurrent neural network. As such, perfect transparency and code documentation is needed. The use of complex libraries is prohibited allowing everyone to read carefully the code and understanding it's behavior.
 
-- pytorch is used only for the convent autograd of tensors.
+- PyTorch is used only for the convenience autograd of tensors and possible gpu acceleration. As the torch.nn library implement complex and opaque behavior, it is not used.
 
 ## project files structure
 
