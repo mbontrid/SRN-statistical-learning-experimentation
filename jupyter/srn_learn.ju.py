@@ -138,9 +138,9 @@ class SRN_subject:
         # input of hidden layer: input concatenated with previous output of the hidden layer
         x_cat_context = torch.cat([x, self.context], dim=0)
 
-        h: torch.Tensor = activation[0](self.Wxh @ x_cat_context + self.bh)
-        self.context = h.clone().detach()  # detach the context from the computational graph to prevent backprop through time
-        y = activation[1](self.Why @ h + self.by)
+        h: torch.Tensor = self.activation[0](self.Wxh @ x_cat_context + self.bh)
+        self.context = h.detach()  # detach the context from the computational graph to prevent backprop through time
+        y = self.activation[1](self.Why @ h + self.by)
         return y
 
     def backprop(self, y_pred, y):
@@ -180,19 +180,19 @@ Hyperparameters of the srn.
 
 hidden_size = len(unique_vals)
 activation = (torch.nn.Tanh(), torch.nn.Sigmoid())
-lr = 0.05
+lr = 0.7
 # extremum of the uniform distribution for the initial weights.
 initial_w_unif = (-0.1, 0.1)
 loss_fn = torch.nn.MSELoss()
 
 # lower val is cell with no stimulus, higher val is cell with stimulus for each steps
-extremum_grid = (
-    0.0,
-    1.0,
-)
+grid_max = 1.0
+grid_min = 0.0
 
 # how many subjects to compute.
-subject_to_test = 0.1
+test_population_ratio = 0.1
+
+epochs = 1
 
 # %% [md]
 """
@@ -210,7 +210,7 @@ input_size = len(unique_vals)
 output_size = len(unique_vals)
 
 
-for subject in range(int(encoded.shape[0] * subject_to_test)):
+for subject in range(int(encoded.shape[0] * test_population_ratio)):
     # instantiate a new srn for each subject.
     srn_subject = SRN_subject(
         input_size=input_size,
@@ -222,31 +222,44 @@ for subject in range(int(encoded.shape[0] * subject_to_test)):
         loss_fn=loss_fn,
     )
 
-    for trial in range(encoded.shape[1] - 1):
-        # the next value is the true prediction of the input value.
-        x = encoded[subject, trial]
-        y_true = encoded[subject, trial + 1]
+    for epoch in range(epochs):
+        true_predictable = 0
+        true_predictable_prediction = 0
 
-        # make a grid with stimulus at the encoded label position.
-        x_grid = torch.ones(len(unique_vals)) * extremum_grid[0]
-        x_grid[x] = extremum_grid[1]
+        for trial in range(encoded.shape[1] - 1):
+            # the next value is the true prediction of the input value.
+            x = encoded[subject, trial]
+            y_true = encoded[subject, trial + 1]
 
-        # make a grid with the expected stimulus at the encoded label position.
-        y_grid = torch.ones(len(unique_vals)) * extremum_grid[0]
-        y_grid[y_true] = extremum_grid[1]
+            # make a grid with stimulus at the encoded label position.
+            x_grid = torch.ones(len(unique_vals)) * grid_min
+            x_grid[x] = grid_max
 
-        y_pred_grid = srn_subject.forward(x_grid)
-        loss = srn_subject.backprop(y_pred_grid, y_grid)
+            #  make a grid with the expected stimulus at the encoded label position.
+            y_grid = torch.ones(len(unique_vals)) * grid_min
+            y_grid[y_true] = grid_max
 
-        y_true_label = unique_vals[y_true]  # get the expected letter
-        # get the encoded index of the most expected stimulus.
-        y_pred = torch.argmax(y_pred_grid)
-        y_pred_label = unique_vals[y_pred]  # get the predicted letter
-        x_label = unique_vals[x]  # get the input letter
+            y_pred_grid = srn_subject.forward(x_grid)
+            loss = srn_subject.backprop(y_pred_grid, y_grid)
 
-        if logger_level == "TRACE":
-            # only print trials with no embeddings (random values)
+            y_true_label = unique_vals[y_true]  # get the expected letter
+            # get the encoded index of the most expected stimulus.
+            y_pred = torch.argmax(y_pred_grid)
+            y_pred_label = unique_vals[y_pred]  # get the predicted letter
+            x_label = unique_vals[x]  # get the input letter
+
             if y_true_label in ["d", "e", "f"]:
-                logger.trace(
-                    f"subject {subject}, trial {trial}, x={x_label}, y={y_true_label}, y_pred={y_pred_label}, correct={y_true_label == y_pred_label}, loss={loss}"
-                )
+                true_predictable += 1
+                if y_true_label == y_pred_label:
+                    true_predictable_prediction += 1
+
+            # if logger_level == "TRACE":
+            #     # only print trials with no embeddings (random values)
+            #     if y_true_label in ["d", "e", "f"]:
+            #         logger.trace(
+            #             f"subject {subject}, trial {trial}, x={x_label}, y={y_true_label}, y_pred={y_pred_label}, correct={y_true_label == y_pred_label}, loss={loss}"
+            #         )
+
+        logger.debug(
+            f"subject={subject}, epoch={epoch}, mean_true={true_predictable_prediction / true_predictable if true_predictable > 0 else 0}"
+        )
