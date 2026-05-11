@@ -3,11 +3,15 @@
 # Simple recursive network for sequence learning
 """
 
+# %% [md]
+"""
+## Setup
+"""
+
 # %%
 import sys
 from pathlib import Path
 import numpy as np
-from numpy.typing import ArrayLike
 import torch
 from typing import Callable, Sequence
 from tqdm import trange
@@ -21,17 +25,26 @@ from src.utils.args import get_args
 from src.data.formater import PandasLoader
 
 # %%
+# global setup parameters
 args = get_args()
+# define the verbose level
 logger_level = "TRACE"
 
 # %%
+# golbal setup
 add_log_level("TRACE", 5)
 logger = setup_logger(name="logger", level=logger_level)
 logger.info("logger set to info level")
 logger.trace("TRACE logger activated")
 
 
+# %% [md]
+"""
+## Data setup
+
+"""
 # %%
+# load data
 loader = PandasLoader(args["input"], args["format"])
 responses = loader.get()
 logger.info(f"subjects response per trial: \n {responses}")
@@ -61,7 +74,8 @@ def make_uniform_tensor(
 
 # %% [md]
 """
-![test](https://web.stanford.edu/group/pdplab/pdphandbook/srn_net.png)
+## SRN implementation
+![srn elman diagrma](https://web.stanford.edu/group/pdplab/pdphandbook/srn_net.png)
 
 A SRN is a simplified RNN. The output of the hidden layer is fed back as input to the hidden layer at the
 next time step. The output of the hidden layer is also used to compute the output of the network.
@@ -79,17 +93,27 @@ hidden --> output
 
 # %%
 class SRN_subject:
+    """Basic Elman SRN. Made of two weighted layer, the first one has it's ouptut copied for future concatenation with the next input.
+
+    Attributes:
+        lr: learning rate.
+        activation: List of activation functions. The function are nessary.
+        loss_fn: loss function to use for backpropagation.
+        Wxh: Weights of the first layer.
+        Why: Weights of the second layer.
+        context: After each forward pass, hidden layer is copied in context.
+    """
+
     def __init__(
         self,
         input_size: int,
         hidden_size: int,
         output_size: int,
-        activation: list[Callable] = [torch.nn.Tanh],
+        activation: tuple[Callable, Callable] = (torch.nn.Tanh(), torch.nn.Sigmoid()),
         lr: float = 0.05,
         initial_w_unif: tuple[float, float] = (-0.1, 0.1),
         loss_fn: Callable = torch.nn.MSELoss(),
     ):
-
         self.lr = lr
         self.activation = activation
         self.loss_fn = loss_fn
@@ -110,15 +134,15 @@ class SRN_subject:
         # input of hidden layer: input concatenated with previous output of the hidden layer
         x_cat_context = torch.cat([x, self.context], dim=0)
 
-        h = activation[0](self.Wxh @ x_cat_context)
-        self.context = h.detach()  # detach the context from the computational graph to prevent backprop through time
+        h: torch.Tensor = activation[0](self.Wxh @ x_cat_context)
+        self.context = h.clone().detach()  # detach the context from the computational graph to prevent backprop through time
         y = activation[1](self.Why @ h)
         return y
 
     def backprop(self, y_pred, y):
 
         loss = self.loss_fn(y_pred, y)
-        loss.backward()
+        loss.backward()  # compute gradients
 
         if self.Wxh.grad is None or self.Why.grad is None:
             e = RuntimeError("gradient missing")
@@ -128,6 +152,8 @@ class SRN_subject:
         with torch.no_grad():
             self.Wxh -= self.lr * self.Wxh.grad
             self.Why -= self.lr * self.Why.grad
+
+            # reset the gradients.
             self.Wxh.grad.zero_()
             self.Why.grad.zero_()
 
@@ -149,23 +175,35 @@ For the backpropagation, when we learn patern on on a screen, how do we see the 
 # %%
 
 hidden_size = len(unique_vals)
-activation = [torch.nn.Tanh(), torch.nn.Sigmoid()]
+activation: tuple[Callable, Callable] = (torch.nn.Tanh(), torch.nn.Sigmoid())
 lr = 0.1
 initial_w_unif = (-0.1, 0.1)
 loss_fn = torch.nn.MSELoss()
 
-extremum_grid = (0.0, 1.0)
+# lower val is cell with no stimulus, higher val is cell with stimulus for each steps
+extremum_grid = (
+    0.0,
+    1.0,
+)
 
 # %% [md]
 """
 ## Prediction and backprpagation
+```mermaid
+graph LR;
+a --> a_emb --> d
+b --> b_emb --> e
+c --> c_emb --> f
+```
 """
 
 # %%
 input_size = len(unique_vals)
 output_size = len(unique_vals)
 
-for i in trange(encoded.shape[0]):
+
+for subject in range(encoded.shape[0]):
+    # instantiate a new srn for each subject.
     srn_subject = SRN_subject(
         input_size=input_size,
         hidden_size=hidden_size,
@@ -176,25 +214,31 @@ for i in trange(encoded.shape[0]):
         loss_fn=loss_fn,
     )
 
-    for j in range(encoded.shape[1] - 1):
-        x = encoded[i, j]
-        y_true = encoded[i, j + 1]
+    for trial in range(encoded.shape[1] - 1):
+        # the next value is the true prediction of the input value.
+        x = encoded[subject, trial]
+        y_true = encoded[subject, trial + 1]
 
-        # make a grid with the previous value at the encoded label position.
+        # make a grid with stimulus at the encoded label position.
         x_grid = torch.ones(len(unique_vals)) * extremum_grid[0]
         x_grid[x] = extremum_grid[1]
 
-        # make a grid with the response value at the encoded label position.
+        # make a grid with the expected stimulus at the encoded label position.
         y_grid = torch.ones(len(unique_vals)) * extremum_grid[0]
         y_grid[y_true] = extremum_grid[1]
 
         y_pred_grid = srn_subject.forward(x_grid)
         loss = srn_subject.backprop(y_pred_grid, y_grid)
 
-        y_true = unique_vals[y_true]
+        y_true_label = unique_vals[y_true]  # get the expected letter
+        # get the encoded index of the most expected stimulus.
         y_pred = torch.argmax(y_pred_grid)
-        y_pred_label = unique_vals[y_pred]
-        x_label = unique_vals[x]
-        logger.trace(
-            f"subject {i}, trial {j}, x={x_label}, y={y_true}, y_pred={y_pred_label}, loss={loss}"
-        )
+        y_pred_label = unique_vals[y_pred]  # get the predicted letter
+        x_label = unique_vals[x]  # get the input letter
+
+        if logger_level == "TRACE":
+            # only print trials with no embeddings (random values)
+            if y_true in ["d", "e", "f"]:
+                logger.trace(
+                    f"subject {subject}, trial {trial}, x={x_label}, y={y_true_label}, y_pred={y_pred_label}, loss={loss}"
+                )
