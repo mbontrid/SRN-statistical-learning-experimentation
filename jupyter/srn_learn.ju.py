@@ -23,6 +23,7 @@ sys.path.append(str(Path().resolve().parents[0]))
 from src.utils.logger import setup_logger, add_log_level
 from src.utils.args import get_args
 from src.data.formater import PandasLoader
+from src.data.utils import rand_key_emb_value
 
 # %%
 # global setup parameters
@@ -210,6 +211,24 @@ input_size = len(unique_vals)
 output_size = len(unique_vals)
 
 
+def step(
+    model: SRN_subject, x: int, y_true: int, size: int, grid_min: float, grid_max: float
+):
+    # the next value (y_true) is the true prediction of the input value.
+
+    # make a grid with stimulus at the encoded label position.
+    x_grid = torch.ones(size) * grid_min
+    x_grid[x] = grid_max
+
+    #  make a grid with the expected stimulus at the encoded label position.
+    y_grid = torch.ones(size) * grid_min
+    y_grid[y_true] = grid_max
+
+    y_pred_grid = model.forward(x_grid)
+    loss = model.backprop(y_pred_grid, y_grid)
+    return x, y_true, x_grid, y_grid, y_pred_grid, loss
+
+
 for subject in range(int(encoded.shape[0] * test_population_ratio)):
     # instantiate a new srn for each subject.
     srn_subject = SRN_subject(
@@ -227,20 +246,14 @@ for subject in range(int(encoded.shape[0] * test_population_ratio)):
         true_predictable_prediction = 0
 
         for trial in range(encoded.shape[1] - 1):
-            # the next value is the true prediction of the input value.
-            x = encoded[subject, trial]
-            y_true = encoded[subject, trial + 1]
-
-            # make a grid with stimulus at the encoded label position.
-            x_grid = torch.ones(len(unique_vals)) * grid_min
-            x_grid[x] = grid_max
-
-            #  make a grid with the expected stimulus at the encoded label position.
-            y_grid = torch.ones(len(unique_vals)) * grid_min
-            y_grid[y_true] = grid_max
-
-            y_pred_grid = srn_subject.forward(x_grid)
-            loss = srn_subject.backprop(y_pred_grid, y_grid)
+            x, y_true, x_grid, y_grid, y_pred_grid, loss = step(
+                srn_subject,
+                encoded[subject, trial],
+                encoded[subject, trial + 1],
+                size=len(unique_vals),
+                grid_min=grid_min,
+                grid_max=grid_max,
+            )
 
             y_true_label = unique_vals[y_true]  # get the expected letter
             # get the encoded index of the most expected stimulus.
