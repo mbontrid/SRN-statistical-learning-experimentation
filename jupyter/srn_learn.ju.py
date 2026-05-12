@@ -11,19 +11,20 @@
 # %%
 import sys
 from pathlib import Path
-import numpy as np
-import torch
 from typing import Callable, Sequence
 from tqdm import trange
 
+import numpy as np
+import torch
+import matplotlib.pyplot as plt
 
 # import local packages
 sys.path.append(str(Path().resolve().parents[0]))
 
-from src.utils.logger import setup_logger, add_log_level
-from src.utils.args import get_args
 from src.data.formater import PandasLoader
 from src.data.utils import rand_key_emb_value
+from src.utils.args import get_args
+from src.utils.logger import add_log_level, setup_logger
 
 # %%
 # global setup parameters
@@ -62,8 +63,9 @@ dict_unique_vals = {
 }
 logger.info(f"unique values (set)={unique_vals}")
 logger.info(f"encoded values={encoded}")
+logger.info(f"number of labels={len(unique_vals)}")
 encoded = encoded.reshape(responses.shape)
-logger.debug(f"final encoded shape (subjests, responses)={encoded.shape}")
+logger.debug(f"final encoded shape (subjects, responses)={encoded.shape}")
 
 
 # %%
@@ -167,6 +169,20 @@ class SRN_subject:
         return loss
 
 
+# %%
+def predict_grid(model: SRN_subject, x: int, y_true: int, unique_vals):
+    # make a grid with stimulus at the encoded label position.
+    x_grid = torch.ones(len(unique_vals)) * grid_min
+    x_grid[x] = grid_max
+
+    #  make a grid with the expected stimulus at the encoded label position.
+    y_true_grid = torch.ones(len(unique_vals)) * grid_min
+    y_true_grid[y_true] = grid_max
+
+    y_pred_grid = model.forward(x_grid)
+    return x_grid, y_true_grid, y_pred_grid
+
+
 # %% [md]
 """
 Question:
@@ -231,20 +247,17 @@ for subject in range(int(encoded.shape[0] * test_population_ratio)):
         true_predictable = 0
         true_predictable_prediction = 0
 
-        for trial in range(encoded.shape[1] - 1):
-            # the next value is the true prediction of the input value.
-            x = encoded[subject, trial]
-            y_true = encoded[subject, trial + 1]
+        for step in range(encoded.shape[1] - 1):
+            x = encoded[subject, step]
+            y_true = encoded[subject, step + 1]
 
-            # make a grid with stimulus at the encoded label position.
-            x_grid = torch.ones(len(unique_vals)) * grid_min
-            x_grid[x] = grid_max
+            x_grid, y_grid, y_pred_grid = predict_grid(
+                model=srn_subject,
+                x=x,
+                y_true=y_true,
+                unique_vals=unique_vals,
+            )
 
-            #  make a grid with the expected stimulus at the encoded label position.
-            y_grid = torch.ones(len(unique_vals)) * grid_min
-            y_grid[y_true] = grid_max
-
-            y_pred_grid = srn_subject.forward(x_grid)
             loss = srn_subject.backprop(y_pred_grid, y_grid)
 
             y_true_label = unique_vals[y_true]  # get the expected letter
@@ -255,7 +268,7 @@ for subject in range(int(encoded.shape[0] * test_population_ratio)):
 
             if y_true_label in ["d", "e", "f"]:
                 logger.trace(
-                    f"subject {subject}, trial {trial}, x={x_label}, y={y_true_label}, y_pred={y_pred_label}, correct={y_true_label == y_pred_label}, loss={loss}",
+                    f"subject {subject}, trial {step}, x={x_label}, y={y_true_label}, y_pred={y_pred_label}, correct={y_true_label == y_pred_label}, loss={loss}",
                 )
                 true_predictable += 1
                 if y_true_label == y_pred_label:
@@ -268,12 +281,17 @@ for subject in range(int(encoded.shape[0] * test_population_ratio)):
 # %% [md]
 """
 As we can see, the result si not satiffying. To assert the capablity of the snr to learn, we will use a longer sequence generated on the stack.
+
+### Data generator
 """
 
 # %%
 
 lr = 0.5
 hidden_size = len(unique_vals)
+generate_size = 100000
+true_predictable = []
+loss_evolution = []
 
 srn_subject = SRN_subject(
     input_size=input_size,
@@ -285,8 +303,6 @@ srn_subject = SRN_subject(
     loss_fn=loss_fn,
 )
 
-true_predictable = 0
-true_predictable_prediction = 0
 
 seq_stimulus = {
     dict_unique_vals.get("a"): dict_unique_vals.get("d"),
@@ -298,24 +314,28 @@ embedings = tuple(
     - set(seq_stimulus.keys())
     - set(seq_stimulus.values())
 )
-generate_size = 100000
 
 sequ_generator = rand_key_emb_value(
     seq_stimulus=seq_stimulus, embeddings=embedings, size=generate_size
 )
-x = next(sequ_generator)
-y_true = x
-trial = 0
-for y_true in sequ_generator:
-    # make a grid with stimulus at the encoded label position.
-    x_grid = torch.ones(len(unique_vals)) * grid_min
-    x_grid[x] = grid_max
 
-    #  make a grid with the expected stimulus at the encoded label position.
-    y_grid = torch.ones(len(unique_vals)) * grid_min
-    y_grid[y_true] = grid_max
 
-    y_pred_grid = srn_subject.forward(x_grid)
+# %% [md]
+"""
+The sequ_generator can generate a simulation of data.
+"""
+# %%
+y_true = next(sequ_generator)
+for step, new_value in enumerate(sequ_generator):
+    x = y_true
+    y_true = new_value
+
+    x_grid, y_grid, y_pred_grid = predict_grid(
+        model=srn_subject,
+        x=x,
+        y_true=y_true,
+        unique_vals=unique_vals,
+    )
     loss = srn_subject.backprop(y_pred_grid, y_grid)
 
     y_true_label = unique_vals[y_true]  # get the expected letter
@@ -324,14 +344,23 @@ for y_true in sequ_generator:
     y_pred_label = unique_vals[y_pred]  # get the predicted letter
     x_label = unique_vals[x]  # get the input letter
 
+    loss_evolution.append(loss)
     if y_true_label in ["d", "e", "f"]:
         print(
-            f"trial={trial}, x={x_label}, y={y_true_label}, y_pred={y_pred_label}, correct={y_true_label == y_pred_label}, loss={loss}",
+            f"step={step}, x={x_label}, y={y_true_label}, y_pred={y_pred_label}, correct={y_true_label == y_pred_label}, loss={loss}",
             end="\r",
         )
-        true_predictable += 1
         if y_true_label == y_pred_label:
-            true_predictable_prediction += 1
+            true_predictable.append(True)
+        else:
+            true_predictable.append(False)
 
-    x = y_true
-    trial += 1
+
+# %% [md]
+"""
+Visibly, with enough simulation steps, the srn can predict a predictable value without error.
+For a->d, b->e, c->f and 24 embeddings, the number of possible 3 tuples is:
+$$\text{3 steps possibilities} = 3 * 24 = 72 $$
+So there is a chance that the srn simply overfit on all the possiblities if there is too much steps.
+"""
+# %%
