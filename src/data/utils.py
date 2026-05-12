@@ -17,7 +17,7 @@ def rand_key_emb_value(
     """
     if seed is not None:
         random.seed(seed)
-    for _ in range(size):
+    for _ in range(size // 3):
         first, last = random.choice(list(seq_stimulus.items()))
         embedding = random.choice(embeddings)
         for i in (first, embedding, last):

@@ -271,9 +271,13 @@ As we can see, the result si not satiffying. To assert the capablity of the snr 
 """
 
 # %%
+
+lr = 0.5
+hidden_size = len(unique_vals)
+
 srn_subject = SRN_subject(
     input_size=input_size,
-    hidden_size=3,
+    hidden_size=hidden_size,
     output_size=output_size,
     activation=activation,
     lr=lr,
@@ -294,10 +298,10 @@ embedings = tuple(
     - set(seq_stimulus.keys())
     - set(seq_stimulus.values())
 )
-size = 100000
+generate_size = 100000
 
 sequ_generator = rand_key_emb_value(
-    seq_stimulus=seq_stimulus, embeddings=embedings, size=size
+    seq_stimulus=seq_stimulus, embeddings=embedings, size=generate_size
 )
 x = next(sequ_generator)
 y_true = x
