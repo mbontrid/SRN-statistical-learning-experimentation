@@ -3,8 +3,8 @@ from typing import Any, Generator
 
 
 def rand_key_emb_value(
-    seq_stumulus: dict, embeddings: list, seed: int | None = None, len: int = 1
-) -> Generator[Any, Any, Any]:
+    seq_stimulus: dict, embeddings: list | tuple, size: int = 1, seed: int | None = None
+) -> Generator[Any, None, None]:
     """Generate a random "key", "embeddings", "value" tuple.
 
     Args:
@@ -17,7 +17,8 @@ def rand_key_emb_value(
     """
     if seed is not None:
         random.seed(seed)
-    for i in range(len):
-        first, last = random.choice(list(seq_stumulus.items()))
+    for _ in range(size):
+        first, last = random.choice(list(seq_stimulus.items()))
         embedding = random.choice(embeddings)
-        yield [first, embedding, last]
+        for i in (first, embedding, last):
+            yield i
