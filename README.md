@@ -1,6 +1,6 @@
 # SRN-statistical-learning-experimentation
 
-Experimentation of simple recursive network in the domain of human statistical learning.
+Experimentation of simple recurrent network in the domain of human statistical learning.
 
 The [experimentation book](https://mbontrid.github.io/SRN-statistical-learning-experimentation) can be found here.
 
