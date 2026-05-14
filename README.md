@@ -4,6 +4,8 @@ Experimentation of simple recurrent network in the domain of human statistical l
 
 The [experimentation book](https://mbontrid.github.io/SRN-statistical-learning-experimentation) can be found here.
 
+Related paper : [Chunking or not chunking? How do we find words in artificial language learning?](https://psycnet.apa.org/record/2013-13580-007)
+
 Based on the Elman SRN architecture, this project aims to search and demonstrate the models with which human learn language (sequences).
 
 ```mermaid
@@ -38,7 +40,7 @@ uv run src/main.py --help
 
 ## Documentation
 
-One of the main purpose of this project is experimenting with the human learning of sequences  and a simple recurrent neural network. As such, perfect transparency and code documentation is needed. The use of complex libraries is prohibited allowing everyone to read carefully the code and understanding it's behavior.
+One of the main purpose of this project to experiment with human learning of sequences and a simple recurrent neural network. As such, perfect transparency and code documentation is needed. The use of complex libraries is avoided. Allowing everyone to read carefully the code and understanding it's behavior.
 
 - PyTorch is used only for the convenience autograd of tensors and possible gpu acceleration. As the torch.nn library implement complex and opaque behavior, it is not used.
 
@@ -65,9 +67,6 @@ One of the main purpose of this project is experimenting with the human learning
 
 ## Contribution
 
-### Jupyter
-
-If possible, edit the .ipynb files indirectly with it's .ju.py counterpart. (using Selenium jupyter)
 
 ## Roadmap
 
