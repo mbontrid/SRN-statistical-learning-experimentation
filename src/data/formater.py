@@ -8,7 +8,7 @@ class Format(Enum):
 
     Attributes:
         default: Format of data already formated for this projetc (TODO: define format).
-        format_1: Format of the given ecxel file.
+        format_1: Format of the given excel file.
     """
 
     DEFAULT = auto()
@@ -69,6 +69,11 @@ class PandasLoader:
     # ---------------------------------------------------------------
 
     def _results_tr_24_loader(self) -> pd.DataFrame:
+        """Load data from the Results_TR_24.xls file.
+
+        Returns:
+            pd.DataFrame: Standardized dataframe.
+        """
         # usecols = ["Trial", "Condition", "ResponseLabel", "Time", "cleaned RT"]
         usecols = ["Trial", "ResponseLabel"]
 
