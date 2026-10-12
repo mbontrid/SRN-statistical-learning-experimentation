@@ -16,12 +16,13 @@ project:
   github: https://github.com/mbontrid/SRN-statistical-learning-experimentation
   # To autogenerate a Table of Contents, run "jupyter book init --write-toc"
   toc:
-    - file: jupyter/intro.md
-    - file: jupyter/srn_learn.ipynb
+    - file: notebook/intro.md
+    - file: notebook/srn_learn.ipynb
+    - file: notebook/srn_chunking.ipynb
 site:
   template: book-theme
-  title: learn-srn
+  title: SRN-Chunking
   options:
     # favicon: favicon.ico
-    logo: jupyter/sceau-a-quadri.webp
+    logo: documents/sceau-a-quadri.webp
 

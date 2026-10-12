@@ -1,5 +1,12 @@
 # SRN-statistical-learning-experimentation
 
+
+
+```markdown
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/googlecolab/colabtools/blob/main/notebooks/colab-github-demo.ipynb)
+```
+
+
 Experimentation of simple recurrent network in the domain of human statistical learning.
 
 The [experimentation book](https://mbontrid.github.io/SRN-statistical-learning-experimentation) can be found here.
