@@ -10,9 +10,14 @@ except ModuleNotFoundError:
 
 def get_args(input: Path | None = None, format: Format | None = None) -> dict:
     project_root = Path(__file__).resolve().parents[2]
+
+    input = (
+        input if input is not None else project_root / "data/input/Results_TR_24.xls"
+    )
+    format = format if format is not None else Format.FORMAT_1
     return {
-        "input": input if input is not None else project_root / "data/input/Results_TR_24.xls",
-        "format": format if format is not None else Format.FORMAT_1,
+        "input": input,
+        "format": format,
     }
 
 
