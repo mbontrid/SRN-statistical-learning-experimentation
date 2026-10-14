@@ -2,9 +2,9 @@
 
 
 
-```markdown
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/googlecolab/colabtools/blob/main/notebooks/colab-github-demo.ipynb)
-```
+
+
 
 
 Experimentation of simple recurrent network in the domain of human statistical learning.
@@ -57,6 +57,8 @@ PyTorch is used only for the convenience of tensor autograd and, when available,
   - Input data are meant to be in `./data/input/`.
   - Output data will go to `./data/output/`.
 - jupyter: Contains the chapters of the jupyter book. To appear in the book, each chapter has to be listed in the toc property of myst.yml.
+- src: python files called from notebook to lighten the number of lines inside notebooks.
+- 
 
 ```
 .
@@ -67,20 +69,9 @@ PyTorch is used only for the convenience of tensor autograd and, when available,
 ├── jupyter
 │   ├── intro.md
 │   ├── srn_learn.ipynb
-│   └── srn_learn.ju.py
-├── myst.yml
+│   └── srn_chunking.ipynb
 ├── src
 ```
 
 ## Contribution
 
-
-## Roadmap
-
-- [x] [Elman SRN](https://web.stanford.edu/group/pdplab/pdphandbook/handbookch8.html)
-- [ ] Other models
-- [x] Load base data
-- [x] Define and load data format
-- [x] Jupyter notebook
-- [ ] Make ui interface
-- [ ] Authors name ?
