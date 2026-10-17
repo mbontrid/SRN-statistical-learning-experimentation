@@ -10,7 +10,9 @@ This jupyter book is made of different notebook that are shown as static interne
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mbontrid/SRN-statistical-learning-experimentation/blob/main/notebooks/srn_chunking.ipynb)
 
-# template
+
+
+# template for an example of what is possible with jupyter book
 
 I am a book about ... something! Wikipedia has [information about books](wiki:book): hover over the link for more information.
 

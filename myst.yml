@@ -18,7 +18,7 @@ project:
   toc:
     - file: notebooks/intro.md
     - file: notebooks/srn_chunking.ipynb
-    - file: notebooks/srn_learn.ipynb
+    # - file: notebooks/srn_learn.ipynb
 site:
   template: book-theme
   title: SRN-Chunking
