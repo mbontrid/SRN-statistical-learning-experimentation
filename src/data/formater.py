@@ -11,8 +11,13 @@ class Format(Enum):
         format_1: Format of the given excel file.
     """
 
-    DEFAULT = auto()
     FORMAT_1 = auto()  # format of the Results_TR_24.xls file
+    FORMAT_2 = (
+        auto()
+    )  # format of the stim_Learning_S1.xlsx file with 2 positions row selected.
+    FORMAT_3 = (
+        auto()
+    )  # format of the stim_Learning_S1.xlsx file with 3 positions row selected.
 
 
 class PandasLoader:
@@ -34,7 +39,11 @@ class PandasLoader:
 
     @property
     def format_function(self) -> dict:
-        return {Format.FORMAT_1: self._results_tr_24_loader}
+        return {
+            Format.FORMAT_1: self._results_tr_24_loader,
+            Format.FORMAT_2: self._stim_learning_s1_2pos,
+            Format.FORMAT_3: self._stim_learning_s1_3pos,
+        }
 
     @property
     def path(self):
@@ -78,7 +87,57 @@ class PandasLoader:
         usecols = ["Trial", "ResponseLabel"]
 
         df = pd.read_excel(self.path, sheet_name="data", usecols=usecols)
-        df["Subject"] = (df["Trial"] == 1).cumsum()
+        df["Subject"] = (
+            df["Trial"] == 1
+        ).cumsum()  # add the count of the number of times the trial is equal to 1, and assign it to the Subject column.
+        df["TrialIndex"] = df.groupby("Subject").cumcount()
+        df = df.pivot(index="TrialIndex", columns="Subject", values="ResponseLabel")
+
+        return df.astype(str)
+
+    def _stim_learning_s1_2pos(self) -> pd.DataFrame:
+        """Load data from the stim_Learning_S1.xlsx file.
+        This only load the trial with L1. Meaning the ones with 2 positions.
+
+        Returns:
+            pd.DataFrame: Standardized dataframe.
+        """
+        usecols = ["Participant", "Sequence_id", "Block", "Sequence"]
+
+        df = pd.read_excel(self.path, sheet_name="Sheet 1", usecols=usecols)
+
+        df.drop(
+            df[df.Sequence_id > 200].index, inplace=True
+        )  # drop rows where sequence_id is greater than 200
+
+        df.rename(
+            columns={"Participant": "Subject", "Sequence": "ResponseLabel"},
+            inplace=True,
+        )
+        df["TrialIndex"] = df.groupby("Subject").cumcount()
+        df = df.pivot(index="TrialIndex", columns="Subject", values="ResponseLabel")
+
+        return df.astype(str)
+
+    def _stim_learning_s1_3pos(self) -> pd.DataFrame:
+        """Load data from the stim_Learning_S1.xlsx file.
+        This only load the trial with L2. Meaning the ones with 3 positions.
+
+        Returns:
+            pd.DataFrame: Standardized dataframe.
+        """
+        usecols = ["Participant", "Sequence_id", "Block", "Sequence"]
+
+        df = pd.read_excel(self.path, sheet_name="Sheet 1", usecols=usecols)
+
+        df.drop(
+            df[df.Sequence_id < 200].index, inplace=True
+        )  # drop rows where sequence_id is lower than 200
+
+        df.rename(
+            columns={"Participant": "Subject", "Sequence": "ResponseLabel"},
+            inplace=True,
+        )
         df["TrialIndex"] = df.groupby("Subject").cumcount()
         df = df.pivot(index="TrialIndex", columns="Subject", values="ResponseLabel")
 
