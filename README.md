@@ -1,15 +1,12 @@
 # SRN-statistical-learning-experimentation
 
 
-
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/googlecolab/colabtools/blob/main/notebooks/colab-github-demo.ipynb)
-
-
-
-
 Experimentation of simple recurrent network in the domain of human statistical learning.
 
-The [experimentation book](https://mbontrid.github.io/SRN-statistical-learning-experimentation) can be found here. Each notebook can be opened in a google colab session allowing to run the experiment with different parameters.
+The experimentation book can be found [here](https://mbontrid.github.io/SRN-statistical-learning-experimentation).
+Each notebook can also be opened in a google colab session allowing to run the experiment with different parameters. For more information, read the [introduction](https://mbontrid.github.io/SRN-statistical-learning-experimentation/)
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/googlecolab/colabtools/blob/main/notebooks/colab-github-demo.ipynb)
 
 Related paper : [Chunking or not chunking? How do we find words in artificial language learning?](https://psycnet.apa.org/record/2013-13580-007)
 
@@ -29,7 +26,7 @@ hidden --w--> output
 hidden --copy--> context
 ```
 
-## Installation
+## Local installation
 
 This project use the [UV](https://github.com/astral-sh/uv) package manager.
 To install the dependencies, run the following command from the repo directory:
@@ -41,8 +38,7 @@ uv sync
 You can then run the experiments with:
 
 ```bash
-uv run src/main.py --help
-
+uv run --with jupyter jupyter lab
 ```
 
 ## Documentation

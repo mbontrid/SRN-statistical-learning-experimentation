@@ -8,7 +8,7 @@ See: [Simple recurrent neural networks: a simple model that captures the structu
 
 This jupyter book is made of different notebook that are shown as static internet pages. Each notebook can be run in google colab allowing to run the experiments with different parametrisation. To open a notebook in a google colab session, a link like the one bellow is available in each parametrized notebook.
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mbontrid/SRN-statistical-learning-experimentation/blob/main/notebook/srn_chunking.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mbontrid/SRN-statistical-learning-experimentation/blob/main/notebooks/srn_chunking.ipynb)
 
 # template
 
