@@ -3,6 +3,13 @@
 This notebook implement a comparison and analyze the learning inference of sequences by human subjects.
 See: [Simple recurrent neural networks: a simple model that captures the structure in sequences](https://web.stanford.edu/group/pdplab/pdphandbook/handbookch8.html#x24-1150027)
 
+
+# Use
+
+This jupyter book is made of different notebook that are shown as static internet pages. Each notebook can be run in google colab allowing to run the experiments with different parametrisation. To open a notebook in a google colab session, a link like the one bellow is available in each parametrized notebook.
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mbontrid/SRN-statistical-learning-experimentation/blob/main/notebook/srn_chunking.ipynb)
+
 # template
 
 I am a book about ... something! Wikipedia has [information about books](wiki:book): hover over the link for more information.

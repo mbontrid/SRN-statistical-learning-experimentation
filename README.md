@@ -9,7 +9,7 @@
 
 Experimentation of simple recurrent network in the domain of human statistical learning.
 
-The [experimentation book](https://mbontrid.github.io/SRN-statistical-learning-experimentation) can be found here.
+The [experimentation book](https://mbontrid.github.io/SRN-statistical-learning-experimentation) can be found here. Each notebook can be opened in a google colab session allowing to run the experiment with different parameters.
 
 Related paper : [Chunking or not chunking? How do we find words in artificial language learning?](https://psycnet.apa.org/record/2013-13580-007)
 
@@ -73,5 +73,4 @@ PyTorch is used only for the convenience of tensor autograd and, when available,
 ├── src
 ```
 
-## Contribution
-
+>
