@@ -1,14 +1,17 @@
 import random
-from typing import Any, Generator
+from collections.abc import Generator
+from typing import Any
 
 
-def rand_key_emb_value(
-    seq_stimulus: dict, embeddings: list | tuple, seed: int | None = None
-) -> Generator[Any, None, None]:
+def rand_head_emb_tail_generator(
+    head_tail: list[Any, Any] | tuple[Any, Any],
+    embeddings: list | tuple,
+    seed: int | None = None,
+) -> Generator[tuple[Any, Any, Any], None, None]:
     """Generate a random "key", "embeddings", "value" tuple.
 
     Args:
-        seq_stumulus: dictionary of key to put at the beginnig and value to put at the end after the embedding.
+        head_tail: list of tuples containing the head and tail values.
         embeddings: list of available embeddings.
         seed: random seed for reproducibility.
 
@@ -18,6 +21,6 @@ def rand_key_emb_value(
     if seed is not None:
         random.seed(seed)
     while True:
-        first, last = random.choice(list(seq_stimulus.items()))
+        first, last = random.choice(list(head_tail))
         embedding = random.choice(embeddings)
         yield from (first, embedding, last)
