@@ -26,7 +26,15 @@ hidden --w--> output
 hidden --copy--> context
 ```
 
-## Local installation
+
+
+## run
+
+You can run the notebooks in google colab as mentioned above.
+
+To edit locally and run locally the notebooks, you'll have to setup the environment.
+
+### 
 
 This project use the [UV](https://github.com/astral-sh/uv) package manager.
 To install the dependencies, run the following command from the repo directory:
@@ -35,11 +43,13 @@ To install the dependencies, run the following command from the repo directory:
 uv sync
 ```
 
-You can then run the experiments with:
+You can then run the experiments in a jupyter lab session:
 
 ```bash
 uv run --with jupyter jupyter lab
 ```
+
+You can also open the notebooks with VS Code or others editors that support Jupyter editing.
 
 ## Documentation
 
@@ -52,7 +62,7 @@ PyTorch is used only for the convenience of tensor autograd and, when available,
 - data
   - Input data are meant to be in `./data/input/`.
   - Output data will go to `./data/output/`.
-- jupyter: Contains the chapters of the jupyter book. To appear in the book, each chapter has to be listed in the toc property of myst.yml.
+- notebooks: Contains the chapters of the jupyter book. To appear in the book, each chapter has to be listed in the toc property of myst.yml.
 - src: python files called from notebook to lighten the number of lines inside notebooks.
 - 
 
@@ -62,11 +72,10 @@ PyTorch is used only for the convenience of tensor autograd and, when available,
 │   ├── input
 │   │   └── Results_TR_24.xls
 │   └── output
-├── jupyter
+├── notebooks
 │   ├── intro.md
 │   ├── srn_learn.ipynb
 │   └── srn_chunking.ipynb
 ├── src
 ```
 
->
