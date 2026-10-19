@@ -14,7 +14,8 @@
 - [ ] Implement a loss for each item in data (head, emb * x, tail)
 
 ## Sequence data
-- [ ] generate all possible tuples and make a ceiling if too much
-- [ ] add seed for sequence generation
+- [x] generate all possible tuples and make a ceiling if too much
+- [x] add seed for sequence generation
+- [x] Make selectable number of sequences
 - [x] add possibility of loading data Arato
 - [x] widgets for generating sequences
