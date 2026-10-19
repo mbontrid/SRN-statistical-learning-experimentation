@@ -34,7 +34,7 @@ You can run the notebooks in google colab as mentioned above.
 
 To edit locally and run locally the notebooks, you'll have to setup the environment.
 
-### 
+### local
 
 This project use the [UV](https://github.com/astral-sh/uv) package manager.
 To install the dependencies, run the following command from the repo directory:
@@ -50,6 +50,15 @@ uv run --with jupyter jupyter lab
 ```
 
 You can also open the notebooks with VS Code or others editors that support Jupyter editing.
+
+## Deploy
+
+To deploy to Jupyter book, execute with:
+
+```bash
+STATIC_BUILD=1 uv run jupyter-book build --html --execute
+```
+Then commit the resuls.
 
 ## Documentation
 
